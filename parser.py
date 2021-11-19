@@ -108,11 +108,13 @@ def parse_ident(tokens: []):
 	else:
 		return Result.err(f"Expected ident");
 
-def parse_infix(tokens: [], sides, op_token: str):
+def parse_infix_list(tokens: [], sides, op_token: str):
 	lhs = sides(tokens);
 	if lhs.is_err:
 		return lhs;
 	lhs = lhs.inner;
+
+	l = [lhs];
 
 	while True:
 		(token_type, token) = tokens.pop(0);
@@ -120,20 +122,51 @@ def parse_infix(tokens: [], sides, op_token: str):
 			tokens.insert(0, (token_type, token));
 			break;
 
+		l.append(token);
+
 		rhs = sides(tokens);
 		if rhs.is_err:
 			return rhs;
 		rhs = rhs.inner;
 
-		lhs = BinaryOp(lhs, token, rhs);
+		l.append(rhs);
+	
+	return Result.ok(l);
+
+def parse_infix_with_list(l: []):
+	i = 0;
+	lhs = l[i];
+	while True:
+		if len(l) == i + 1:
+			break;
+		lhs = BinaryOp(lhs, l[i + 1], l[i + 2]);
+		i += 2;
 	
 	return Result.ok(lhs);
 
+def parse_infix_left(tokens: [], sides, op_token: str):
+	l = parse_infix_list(tokens, sides, op_token);
+	if l.is_err:
+		return l;
+	l = l.inner;
+	return parse_infix_with_list(l);
+
+def parse_infix_right(tokens: [], sides, op_token: str):
+	l = parse_infix_list(tokens, sides, op_token);
+	if l.is_err:
+		return l;
+	l = l.inner;
+	l.reverse();
+	return parse_infix_with_list(l);
+
+def parse_atom(tokens: []):
+	return parse_infix_right(tokens, lambda tokens: parse_factor(tokens), '^');
+
 def parse_term(tokens: []):
-	return parse_infix(tokens, lambda tokens: parse_factor(tokens), '*/');
+	return parse_infix_left(tokens, lambda tokens: parse_atom(tokens), '*/');
 
 def parse_expr(tokens: []):
-	return parse_infix(tokens, lambda tokens: parse_term(tokens), '+-');
+	return parse_infix_left(tokens, lambda tokens: parse_term(tokens), '+-');
 
 def parse_fn_impl(tokens: []):
 	_ = tokens.pop(0); # fn keyword
