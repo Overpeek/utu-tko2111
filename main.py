@@ -42,16 +42,56 @@ def commandline(debug_mode: bool):
 
 	return run(debug_mode, line);
 
+def print_help():
+	print(f"Usage:");
+	print(f"python main.py [option(s)]");
+	print(f"./main.py [option(s)]");
+	print(f"options:");
+	print(f"\t-c [line]");
+	print(f"\t\tRun line directly");
+	print(f"\t-h");
+	print(f"\t\tView this");
+	print(f"\t-d");
+	print(f"\t\tEnable debug mode");
+
 if __name__ == "__main__":
 	debug_mode = False;
+	cli_mode = True;
+	direct = None;
+
+	expect = [];
+
 	# parse cli args
 	for arg in sys.argv:
-		if arg.startswith("-"):
+		if len(expect) != 0:
+			n = expect.pop(0);
+			if n == 'c':
+				direct = arg.strip('"');
+			else:
+				raise ValueError(f"Expected value for '{c}'' but there is no handler for it");
+		elif arg.startswith("-"):
 			args = arg.split("-", 1)[1];
 
 			for c in args:
 				if c == 'd':
 					debug_mode = True;
+				elif c == 'c':
+					cli_mode = False;
+					expect.append(c);
+				elif c == 'h':
+					print_help();
+					exit(0);
+				else:
+					print(f"Unknown arg: {c}");
+					print_help();
+					exit(-1);
 
-	while commandline(debug_mode):
-		pass
+	if len(expect) != 0:
+		print(f"Expected value for '{expect.pop(0)}'");
+		exit(0);
+
+	if cli_mode:
+		while commandline(debug_mode):
+			pass;
+	else:
+		run(debug_mode, direct);
