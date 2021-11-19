@@ -17,7 +17,11 @@ def parse_factor(tokens: []):
 
 	if token_type == lexer.TOKEN_OP:
 		# parse unary op
-		return Result.ok(Factor(UnaryOp(token, parse_factor(tokens))));
+		factor = parse_factor(tokens);
+		if factor.is_err:
+			return factor;
+		factor = factor.inner;
+		return Result.ok(Factor(UnaryOp(token, factor)));
 	elif token_type == lexer.TOKEN_NUM:
 		# parse num
 		return Result.ok(Factor(Num(token)));
