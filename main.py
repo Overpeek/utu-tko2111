@@ -50,7 +50,7 @@ def print_help():
 	print(f"\t-c [line]");
 	print(f"\t\tRun line directly");
 	print(f"\t-h");
-	print(f"\t\tView this");
+	print(f"\t\tView this help page");
 	print(f"\t-d");
 	print(f"\t\tEnable debug mode");
 
