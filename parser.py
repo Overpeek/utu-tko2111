@@ -133,31 +133,34 @@ def parse_infix_list(tokens: [], sides, op_token: str):
 	
 	return Result.ok(l);
 
-def parse_infix_with_list(l: []):
+def parse_infix_with_list(l: [], rev: bool):
+	if rev:
+		l.reverse();
 	i = 0;
 	lhs = l[i];
 	while True:
 		if len(l) == i + 1:
 			break;
-		lhs = BinaryOp(lhs, l[i + 1], l[i + 2]);
+		if rev:
+			lhs = BinaryOp(l[i + 2], l[i + 1], lhs);
+		else:
+			lhs = BinaryOp(lhs, l[i + 1], l[i + 2]);
 		i += 2;
 	
 	return Result.ok(lhs);
 
 def parse_infix_left(tokens: [], sides, op_token: str):
-	l = parse_infix_list(tokens, sides, op_token);
-	if l.is_err:
-		return l;
-	l = l.inner;
-	return parse_infix_with_list(l);
+	return parse_infix(tokens, sides, op_token, False);
 
 def parse_infix_right(tokens: [], sides, op_token: str):
+	return parse_infix(tokens, sides, op_token, True);
+
+def parse_infix(tokens: [], sides, op_token: str, rev: bool):
 	l = parse_infix_list(tokens, sides, op_token);
 	if l.is_err:
 		return l;
 	l = l.inner;
-	l.reverse();
-	return parse_infix_with_list(l);
+	return parse_infix_with_list(l, rev);
 
 def parse_atom(tokens: []):
 	return parse_infix_right(tokens, lambda tokens: parse_factor(tokens), '^');
