@@ -27,13 +27,15 @@ class Memory:
 	def __init__(self):
 		self.constants = {
 			"pi": math.pi,
-			"e": math.e
+			"e": math.e,
+			"i": 0+1j
 		};
 
 		self.functions = {
 			"sin": lambda memory, x: Result.ok(math.sin(x)),
 			"cos": lambda memory, x: Result.ok(math.cos(x)),
 			"tan": lambda memory, x: Result.ok(math.tan(x)),
+			"round": lambda memory, x: Result.ok(round(x)),
 		};
 
 		self.custom_functions = {}
