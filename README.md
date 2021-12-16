@@ -16,6 +16,7 @@ python main.py -h
 - `-c [rivi]` antaa suorittaa `[rivi]` suoraan
 - `-h` näyttää kytkimet
 - `-d` debug tila
+- `-p` format tila
 
 
 
@@ -43,6 +44,10 @@ $ ./main.py -dc "3*sin(cos(2))"
 Debug: lexer returned: '[(1, '3'), (3, '*'), (4, 'sin'), (2, '('), (4, 'cos'), (2, '('), (1, '2'), (2, ')'), (2, ')'), (0, None)]'
 Debug: parser returned: '<interpreter.BinaryOp object at 0x7f7a676a7790>'
 -1.2127174615567973
+```
+```bash
+$ ./main.py -cf "5*5+3"
+(((5.0)*(5.0))+(3.0))
 ```
 
 

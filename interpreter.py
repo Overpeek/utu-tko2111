@@ -58,12 +58,18 @@ class Factor:
 	def visit(self, memory: Memory):
 		return self.inner.visit(memory);
 
+	def __str__(self):
+		return f"({self.inner})";
+
 class Num:
 	def __init__(self, val):
 		self.val = float(val);
 	
 	def visit(self, memory: Memory):
 		return Result.ok(self.val);
+
+	def __str__(self):
+		return f"{self.val}";
 
 class Const:
 	def __init__(self, name):
@@ -74,9 +80,21 @@ class Const:
 		if const == None:
 			const = memory.arguments.get(self.name);
 		if const == None:
+			# 0 arg func as a const
+			func = memory.functions.get(self.name);
+			if func == None:
+				func = memory.custom_functions.get(self.name);
+				custom = True;
+
+			if func != None and len(inspect.signature(func).parameters) == 2 if custom else 1:
+				return func(memory);
+		if const == None:
 			return Result.err(f"Error: constant: '{self.name}' not found");
 		
 		return Result.ok(const);
+
+	def __str__(self):
+		return f"{self.name}";
 
 class Func:
 	def __init__(self, func, csv):
@@ -104,18 +122,20 @@ class Func:
 		args = tuple(args);
 
 		# validate argc
-		if not custom:
-			func_argc = len(inspect.signature(func).parameters) - 1;
-			given_argc = len(args);
+		func_argc = len(inspect.signature(func).parameters) - 2 if custom else 1;
+		given_argc = len(args);
 
-			if func_argc != given_argc:
-				return Result.err(f"Error: function argument count mismatch for: '{self.func}' got {given_argc} expected {func_argc}");
+		if func_argc != given_argc:
+			return Result.err(f"Error: function argument count mismatch for: '{self.func}' got {given_argc} expected {func_argc}");
 		
 		result = func(memory, *args);
 		if result.is_err:
 			return result;
 		result = result.inner;
 		return Result.ok(result);
+
+	def __str__(self):
+		return f"{self.func}({','.join(self.csv)})";
 
 class ImplFunc:
 	def __init__(self, name, csv, body):
@@ -137,6 +157,9 @@ class ImplFunc:
 
 		return result
 
+	def __str__(self):
+		return f"fn {self.name}({','.join(self.csv)}) = {self.body}";
+
 class UnaryOp:
 	def __init__(self, op, factor):
 		self.op = op;
@@ -154,6 +177,9 @@ class UnaryOp:
 			return Result.ok(factor);
 		else:
 			return Result.err(f"Error: unary op: '{op}' is not supported");
+
+	def __str__(self):
+		return f"({self.op}{self.factor})";
 
 class BinaryOp:
 	def __init__(self, lhs, op, rhs):
@@ -184,3 +210,6 @@ class BinaryOp:
 			return Result.ok(lhs ** rhs);
 		else:
 			return Result.err(f"Error: binary op: '{op}' is not supported");
+
+	def __str__(self):
+		return f"({self.lhs}{self.op}{self.rhs})";

@@ -8,7 +8,7 @@ from interpreter import Memory;
 
 
 
-def run(debug_mode: bool, text: str):
+def run(debug_mode: bool, dump: bool, text: str):
 	tokens = lexer.lex(debug_mode, text);
 	if debug_mode:
 		print(f"Debug: lexer returned: '{tokens}'");
@@ -20,17 +20,20 @@ def run(debug_mode: bool, text: str):
 	ast = ast.inner;
 	if debug_mode:
 		print(f"Debug: parser returned: '{ast}'");
-	
-	result = ast.visit(Memory());
-	if result.is_err:
-		print(f"Interpreter error: {result.inner}");
-		return True;
-	result = result.inner;
-	print(f"{result}");
+
+	if dump:
+		print(f"{ast}");
+	else:
+		result = ast.visit(Memory());
+		if result.is_err:
+			print(f"Interpreter error: {result.inner}");
+			return True;
+		result = result.inner;
+		print(f"{result}");
 	
 	return True;
 
-def commandline(debug_mode: bool):
+def commandline(debug_mode: bool, dump: bool):
 	try:
 		line = input("> ");
 	except KeyboardInterrupt:
@@ -40,7 +43,7 @@ def commandline(debug_mode: bool):
 		# handle <q>
 		return False;
 
-	return run(debug_mode, line);
+	return run(debug_mode, dump, line);
 
 def print_help():
 	print(f"Usage:");
@@ -53,11 +56,14 @@ def print_help():
 	print(f"\t\tView this help page");
 	print(f"\t-d");
 	print(f"\t\tEnable debug mode");
+	print(f"\t-f");
+	print(f"\t\tEnable format mode");
 
 if __name__ == "__main__":
 	debug_mode = False;
 	cli_mode = True;
 	direct = None;
+	dump = False;
 
 	expect = [];
 
@@ -75,6 +81,8 @@ if __name__ == "__main__":
 			for c in args:
 				if c == 'd':
 					debug_mode = True;
+				elif c == 'f':
+					dump = True;
 				elif c == 'c':
 					cli_mode = False;
 					expect.append(c);
@@ -91,7 +99,7 @@ if __name__ == "__main__":
 		exit(0);
 
 	if cli_mode:
-		while commandline(debug_mode):
+		while commandline(debug_mode, dump):
 			pass;
 	else:
-		run(debug_mode, direct);
+		run(debug_mode, dump, direct);
