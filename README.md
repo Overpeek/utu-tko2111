@@ -93,6 +93,13 @@ ok
 5.0
 > 
 ```
+```bash
+$ fn x() = 54
+ok
+> x
+54.0
+> 
+```
 #### Funktiot tallennetaan:
 ```bash
 $ ./main.py
