@@ -2,34 +2,34 @@
 
 import sys;
 
-import lexer;
-import parser;
-from interpreter import Memory;
+import calc_lexer;
+import calc_parser;
+from calc_interpreter import Memory;
 
 
 
 def run(debug_mode: bool, dump: bool, text: str):
-	tokens = lexer.lex(debug_mode, text);
+	tokens = calc_lexer.lex(debug_mode, text);
 	if debug_mode:
-		print(f"Debug: lexer returned: '{tokens}'");
+		print(f"Debug: calc_lexer returned: '{tokens}'");
 	
-	ast = parser.parse(debug_mode, tokens);
+	ast = calc_parser.parse(debug_mode, tokens);
 	if ast.is_err:
 		print(f"Parse error: {ast.inner}");
 		return True;
 	ast = ast.inner;
 	if debug_mode:
-		print(f"Debug: parser returned: '{ast}'");
+		print(f"Debug: calc_parser returned: '{ast}'");
 
 	if dump:
 		print(f"{ast}");
 	else:
-		result = ast.visit(Memory());
-		if result.is_err:
-			print(f"Interpreter error: {result.inner}");
+		calc_result = ast.visit(Memory());
+		if calc_result.is_err:
+			print(f"calc_interpreter error: {calc_result.inner}");
 			return True;
-		result = result.inner;
-		print(f"{result}");
+		calc_result = calc_result.inner;
+		print(f"{calc_result}");
 	
 	return True;
 

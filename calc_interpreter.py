@@ -2,12 +2,12 @@ import pickle;
 import math;
 import inspect;
 
-from result import Result;
+from calc_result import Result;
 
 
 
 # ------------------
-# Interpreter memory
+# calc_interpreter memory
 # ------------------
 
 save_file = "functions.pickle";
@@ -63,7 +63,10 @@ class Factor:
 
 class Num:
 	def __init__(self, val):
-		self.val = float(val);
+		if val == ".":
+			self.val = 0.0;
+		else:
+			self.val = float(val);
 	
 	def visit(self, memory: Memory):
 		return Result.ok(self.val);
@@ -138,11 +141,11 @@ class Func:
 		if func_argc != given_argc:
 			return Result.err(f"Error: function argument count mismatch for: '{self.func}' got {given_argc} expected {func_argc}");
 		
-		result = func(memory, *args);
-		if result.is_err:
-			return result;
-		result = result.inner;
-		return Result.ok(result);
+		calc_result = func(memory, *args);
+		if calc_result.is_err:
+			return calc_result;
+		calc_result = calc_result.inner;
+		return Result.ok(calc_result);
 
 	def __str__(self):
 		return f"{self.func}({','.join([val.__str__() for val in self.csv])})";
@@ -170,10 +173,10 @@ class ImplFunc:
 		for (arg, name) in zip(args, self.csv):
 			memory.arguments[name] = arg;
 
-		result = self.body.visit(memory);
+		calc_result = self.body.visit(memory);
 		memory.arguments.clear();
 
-		return result
+		return calc_result
 
 	def __str__(self):
 		return f"fn {self.name}({','.join(self.csv)}) = {self.body}";

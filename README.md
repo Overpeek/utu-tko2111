@@ -53,9 +53,9 @@ $ ./main.py -cf "5*5+3"
 
 
 #### Toiminta:
-Ohjelma syöttää ensiksi merkkijonon `lex` funktiolle `lexer.py` moduulissa. Se käy merkkijonon läpi ja tuottaa jonon eri tokeneita. Ne voi olla numeroita, tekstiä, sulkeita, numerooperaattoreita, pilkkuja tai '=' merkkejä.
+Ohjelma syöttää ensiksi merkkijonon `lex` funktiolle `calc_lexer.py` moduulissa. Se käy merkkijonon läpi ja tuottaa jonon eri tokeneita. Ne voi olla numeroita, tekstiä, sulkeita, numerooperaattoreita, pilkkuja tai '=' merkkejä.
 
-Seuraavaksi tokenijono syötetään `parse` funktioon `parser.py` moduulissa. Se käy läpi tokenijonon yrittäen kerätä Abstract Syntax Tree (AST). Se alkaa `stmt` parserista, joka voi olla joko `fn_impl` tai `expr`, joista `fn_impl` on priorisoitu. `fn_impl` parseri yrittää kerätä tokenijonosta järjestyksessä `fn`, funktion nimen, funktion parametrit (joita voi olla 0 tai useampi), '=' merkki ja lopuksi `expr`. `expr` puolestaan kerää niin monta plus tai miinuslaskua kuin mahdollista muodossa `term` + `+`/`-` + `term`. `term` kerää samalla tavalla niin monta kerto tai jakolaskua kuin mahdollista muodossa `atom` + `*`/`/` + `atom`. `atom` lähes samalla tavalla mutta oikealta vasemmalle kerää niin monta potenssilaskua kuin mahdollista `factor` + `^` + `factor`. `factor` on hieman monimutkaisempi, se yrittää järjestyksessä yhtä:
+Seuraavaksi tokenijono syötetään `parse` funktioon `calc_parser.py` moduulissa. Se käy läpi tokenijonon yrittäen kerätä Abstract Syntax Tree (AST). Se alkaa `stmt` parserista, joka voi olla joko `fn_impl` tai `expr`, joista `fn_impl` on priorisoitu. `fn_impl` parseri yrittää kerätä tokenijonosta järjestyksessä `fn`, funktion nimen, funktion parametrit (joita voi olla 0 tai useampi), '=' merkki ja lopuksi `expr`. `expr` puolestaan kerää niin monta plus tai miinuslaskua kuin mahdollista muodossa `term` + `+`/`-` + `term`. `term` kerää samalla tavalla niin monta kerto tai jakolaskua kuin mahdollista muodossa `atom` + `*`/`/` + `atom`. `atom` lähes samalla tavalla mutta oikealta vasemmalle kerää niin monta potenssilaskua kuin mahdollista `factor` + `^` + `factor`. `factor` on hieman monimutkaisempi, se yrittää järjestyksessä yhtä:
 - `+`/`-` + `factor`
 	Rekursiivisesti kerää kaikki etumerkit. Esim: `- - - - 4`
 - `num`
@@ -80,7 +80,7 @@ $ ./main.py
 > fn f(x) = 2*x^3-4*x+12
 ok
 > f(2)
-22.0
+20.0
 > 
 ```
 ```bash
@@ -107,7 +107,7 @@ $ ./main.py
 ok
 > ^C
 $ ./main.py
-> f(x)
-22.0
+> f(2)
+20.0
 > 
 ```

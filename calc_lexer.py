@@ -20,7 +20,7 @@ def lex(debug_mode: bool, text: str):
 		# if debug_mode:
 			# print(f"Debug: lexing: {c}. Building num: {building_num}. Building ident: {building_ident}");
 
-		# num lexer
+		# num calc_lexer
 		if not building_ident and (c.isdigit() or c == '.'):
 			building_num = True;
 			num += c;
@@ -30,7 +30,7 @@ def lex(debug_mode: bool, text: str):
 			building_num = False;
 			num = "";
 
-		# ident lexer
+		# ident calc_lexer
 		if c.isalnum():
 			building_ident = True;
 			ident += c;
@@ -40,19 +40,19 @@ def lex(debug_mode: bool, text: str):
 			building_ident = False;
 			ident = "";
 		
-		# group lexer
+		# group calc_lexer
 		if c in '()':
 			tokens.append((TOKEN_GROUP, c));
 		
-		# op lexer
+		# op calc_lexer
 		elif c in '+-*/^':
 			tokens.append((TOKEN_OP, c));
 
-		# comma lexer
+		# comma calc_lexer
 		elif c == ',':
 			tokens.append((TOKEN_COMMA, c));
 
-		# eq lexer
+		# eq calc_lexer
 		elif c == '=':
 			tokens.append((TOKEN_EQ, c));
 
