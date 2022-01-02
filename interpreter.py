@@ -143,7 +143,6 @@ class ImplFunc:
 		self.name = name;
 		self.csv = csv;
 		self.body = body;
-		print(f"DEBUG: {len(self.csv)}");
 
 	def visit(self, memory: Memory):
 		memory.custom_functions[self.name] = self;
