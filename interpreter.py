@@ -86,7 +86,7 @@ class Const:
 				func = memory.custom_functions.get(self.name);
 				custom = True;
 
-			if func != None and len(inspect.signature(func).parameters) == 2 if custom else 1:
+			if func != None and len(inspect.signature(func).parameters) == 1:
 				return func(memory);
 		if const == None:
 			return Result.err(f"Error: constant: '{self.name}' not found");
@@ -122,11 +122,12 @@ class Func:
 		args = tuple(args);
 
 		# validate argc
-		func_argc = len(inspect.signature(func).parameters) - 2 if custom else 1;
-		given_argc = len(args);
+		if not custom:
+			func_argc = len(inspect.signature(func).parameters) - 1;
+			given_argc = len(args);
 
-		if func_argc != given_argc:
-			return Result.err(f"Error: function argument count mismatch for: '{self.func}' got {given_argc} expected {func_argc}");
+			if func_argc != given_argc:
+				return Result.err(f"Error: function argument count mismatch for: '{self.func}' got {given_argc} expected {func_argc}");
 		
 		result = func(memory, *args);
 		if result.is_err:
@@ -142,6 +143,7 @@ class ImplFunc:
 		self.name = name;
 		self.csv = csv;
 		self.body = body;
+		print(f"DEBUG: {len(self.csv)}");
 
 	def visit(self, memory: Memory):
 		memory.custom_functions[self.name] = self;
@@ -149,7 +151,12 @@ class ImplFunc:
 		return Result.ok(f"ok");
 
 	def __call__(self, memory: Memory, *args):
-		for (arg, name) in zip(list(args), self.csv):
+		args = list(args);
+
+		if len(args) != len(self.csv):
+				return Result.err(f"Error: function argument count mismatch for: '{self.name}' got {len(args)} expected {len(self.csv)}");
+
+		for (arg, name) in zip(args, self.csv):
 			memory.arguments[name] = arg;
 
 		result = self.body.visit(memory);
