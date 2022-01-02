@@ -77,18 +77,27 @@ class Const:
 	
 	def visit(self, memory: Memory):
 		const = memory.constants.get(self.name);
+		func = None;
 		if const == None:
 			const = memory.arguments.get(self.name);
+		
 		if const == None:
 			# 0 arg func as a const
 			func = memory.functions.get(self.name);
+			custom = False;
 			if func == None:
 				func = memory.custom_functions.get(self.name);
 				custom = True;
 
-			if func != None and len(inspect.signature(func).parameters) == 1:
-				return func(memory);
+			if func != None:
+				func_argc = func.argc() if custom else (len(inspect.signature(func).parameters) - 1);
+				if func_argc == 0:
+					return func(memory);
+		
 		if const == None:
+			if func != None:
+				return Result.err(f"Error: constant: '{self.name}' not found\nWarning: function: '{self.name}' exists but it cannot be used as a constant");
+			
 			return Result.err(f"Error: constant: '{self.name}' not found");
 		
 		return Result.ok(const);
@@ -122,12 +131,12 @@ class Func:
 		args = tuple(args);
 
 		# validate argc
-		if not custom:
-			func_argc = len(inspect.signature(func).parameters) - 1;
-			given_argc = len(args);
+		func_argc = (func.argc()) if custom else (len(inspect.signature(func).parameters) - 1);
+		func_argc = func_argc;
+		given_argc = len(args);
 
-			if func_argc != given_argc:
-				return Result.err(f"Error: function argument count mismatch for: '{self.func}' got {given_argc} expected {func_argc}");
+		if func_argc != given_argc:
+			return Result.err(f"Error: function argument count mismatch for: '{self.func}' got {given_argc} expected {func_argc}");
 		
 		result = func(memory, *args);
 		if result.is_err:
@@ -149,11 +158,14 @@ class ImplFunc:
 		memory.save();
 		return Result.ok(f"ok");
 
+	def argc(self):
+		return len(self.csv);
+
 	def __call__(self, memory: Memory, *args):
 		args = list(args);
 
-		if len(args) != len(self.csv):
-				return Result.err(f"Error: function argument count mismatch for: '{self.name}' got {len(args)} expected {len(self.csv)}");
+		# if len(args) != len(self.csv):
+				# return Result.err(f"Error: function argument count mismatch for: '{self.name}' got {len(args)} expected {len(self.csv)}");
 
 		for (arg, name) in zip(args, self.csv):
 			memory.arguments[name] = arg;
