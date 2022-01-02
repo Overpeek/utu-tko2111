@@ -145,7 +145,7 @@ class Func:
 		return Result.ok(result);
 
 	def __str__(self):
-		return f"{self.func}({','.join(self.csv)})";
+		return f"{self.func}({','.join([val.__str__() for val in self.csv])})";
 
 class ImplFunc:
 	def __init__(self, name, csv, body):

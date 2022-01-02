@@ -17,8 +17,11 @@ def lex(debug_mode: bool, text: str):
 	ident = "";
 
 	for c in text:
+		# if debug_mode:
+			# print(f"Debug: lexing: {c}. Building num: {building_num}. Building ident: {building_ident}");
+
 		# num lexer
-		if c.isdigit() or c == '.':
+		if not building_ident and (c.isdigit() or c == '.'):
 			building_num = True;
 			num += c;
 			continue;
@@ -28,7 +31,7 @@ def lex(debug_mode: bool, text: str):
 			num = "";
 
 		# ident lexer
-		if c.isalpha():
+		if c.isalnum():
 			building_ident = True;
 			ident += c;
 			continue;
