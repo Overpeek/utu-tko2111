@@ -11,7 +11,7 @@ from calc_interpreter import Memory;
 def run(debug_mode: bool, dump: bool, text: str):
 	tokens = calc_lexer.lex(debug_mode, text);
 	if debug_mode:
-		print(f"Debug: calc_lexer returned: '{tokens}'");
+		print(f"Debug: lexer returned: '{tokens}'");
 	
 	ast = calc_parser.parse(debug_mode, tokens);
 	if ast.is_err:
@@ -19,14 +19,14 @@ def run(debug_mode: bool, dump: bool, text: str):
 		return True;
 	ast = ast.inner;
 	if debug_mode:
-		print(f"Debug: calc_parser returned: '{ast}'");
+		print(f"Debug: parser returned: '{ast}'");
 
 	if dump:
 		print(f"{ast}");
 	else:
 		calc_result = ast.visit(Memory());
 		if calc_result.is_err:
-			print(f"calc_interpreter error: {calc_result.inner}");
+			print(f"Interpreter error: {calc_result.inner}");
 			return True;
 		calc_result = calc_result.inner;
 		print(f"{calc_result}");

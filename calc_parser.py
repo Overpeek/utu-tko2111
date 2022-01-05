@@ -6,7 +6,34 @@ from calc_interpreter import *;
 
 
 def parse(debug_mode: bool, tokens: []):
-	return parse_stmt(debug_mode, tokens);
+	# insert missing multiplication ops
+	index = 0;
+	while index < len(tokens) - 1:
+		left = tokens[index];
+		right = tokens[index + 1];
+
+		r_num = right[0] == calc_lexer.TOKEN_NUM;
+		l_num = left[0] == calc_lexer.TOKEN_NUM;
+		r_ident = right[0] == calc_lexer.TOKEN_IDENT;
+		l_r_group = left[0] == calc_lexer.TOKEN_GROUP and left[1] == ')';
+		r_l_group = right[0] == calc_lexer.TOKEN_GROUP and right[1] == '(';
+
+		if (l_num and r_ident) or (l_num and r_l_group) or (l_r_group and r_l_group) or (l_r_group and r_l_group) or (l_r_group and r_num) or (l_r_group and r_ident):
+			tokens.insert(index + 1, (calc_lexer.TOKEN_OP, '*'));
+		
+		index += 1;
+
+	ast = parse_stmt(debug_mode, tokens);
+
+	if ast.is_err:
+		return ast;
+
+	if len(tokens) > 1:
+		tokens.pop(len(tokens) - 1);
+		token_str = ' '.join([str(token[1]) for token in tokens]);
+		return Result.err(f"Error: leftover tokens: '{token_str}'");
+
+	return ast;
 
 # -------
 # calc_parsers
@@ -194,9 +221,28 @@ def parse_fn_impl(tokens: []):
 
 	return Result.ok(ImplFunc(name, csv, expr));
 
+def parse_const_impl(tokens: []):
+	name = parse_ident(tokens);
+	if name.is_err:
+		return name;
+	name = name.inner;
+
+	if not is_eq(*tokens.pop(0)):
+		return Result.err("Expected '='");
+
+	expr = parse_expr(tokens);
+	if expr.is_err:
+		return expr;
+	expr = expr.inner;
+
+	return Result.ok(ImplFunc(name, [], expr));
+
+
 def parse_stmt(debug_mode: bool, tokens: []):
 	if is_fn_keyword(*tokens[0]):
 		return parse_fn_impl(tokens);
+	elif is_eq(*tokens[1]):
+		return parse_const_impl(tokens);
 	else:
 		return parse_expr(tokens);
 
@@ -212,6 +258,9 @@ def is_comma(token_type, token):
 
 def is_fn_keyword(token_type, token):
 	return token_type == calc_lexer.TOKEN_IDENT and token == "fn";
+
+def is_cn_keyword(token_type, token):
+	return token_type == calc_lexer.TOKEN_IDENT and token == "cn";
 
 def is_eq(token_type, token):
 	return token_type == calc_lexer.TOKEN_EQ;

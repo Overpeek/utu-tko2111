@@ -31,18 +31,18 @@ $ ./main.py
 $ ./main.py -d
 > 4+4
 Debug: lexer returned: '[(1, '4'), (3, '+'), (1, '4'), (0, None)]'
-Debug: parser returned: '<interpreter.BinaryOp object at 0x7f0f0b51e790>'
+Debug: parser returned: '((4.0)+(4.0))'
 8.0
 > 
 ```
 ```bash
-$ ./main.py -c "5*(0+5+0)"
+$ ./main.py -c "5(0+5+0)"
 25.0
 ```
 ```bash
-$ ./main.py -dc "3*sin(cos(2))"
+$ ./main.py -dc "3sin(cos(2))"
 Debug: lexer returned: '[(1, '3'), (3, '*'), (4, 'sin'), (2, '('), (4, 'cos'), (2, '('), (1, '2'), (2, ')'), (2, ')'), (0, None)]'
-Debug: parser returned: '<interpreter.BinaryOp object at 0x7f7a676a7790>'
+Debug: parser returned: '((3.0)*sin(cos((2.0))))'
 -1.2127174615567973
 ```
 ```bash
@@ -77,7 +77,7 @@ AST kerättyä se suoritetaan tulkilla. Se käy rekursiivisesti läpi kaikki sen
 ### Funktiot:
 ```bash
 $ ./main.py
-> fn f(x) = 2*x^3-4*x+12
+> fn f(x) = 2x^3-4x+12
 ok
 > f(2)
 20.0
@@ -100,10 +100,17 @@ ok
 54.0
 > 
 ```
+```bash
+$ x = 3pi
+ok
+> x
+9.42477796076938
+> 
+```
 #### Funktiot tallennetaan:
 ```bash
 $ ./main.py
-> fn f(x) = 2*x^3-4*x+12
+> fn f(x) = 2x^3-4x+12
 ok
 > ^C
 $ ./main.py

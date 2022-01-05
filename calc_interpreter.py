@@ -38,9 +38,11 @@ class Memory:
 			"round": lambda memory, x: Result.ok(round(x)),
 		};
 
-		self.custom_functions = {}
+		self.custom_functions = {};
 
-		self.arguments = {}
+		self.arguments = {};
+
+		self.depth = 0;
 
 		self.load();
 
@@ -74,6 +76,15 @@ class Num:
 	def __str__(self):
 		return f"{self.val}";
 
+def call_function(func, memory, *args):
+	memory.depth += 1;
+	if memory.depth >= 16:
+		return Result.err(f"Error: Recursion limit");
+	
+	result = func(memory, *args);
+	memory.depth -= 1;
+	return result;
+
 class Const:
 	def __init__(self, name):
 		self.name = name;
@@ -95,7 +106,7 @@ class Const:
 			if func != None:
 				func_argc = func.argc() if custom else (len(inspect.signature(func).parameters) - 1);
 				if func_argc == 0:
-					return func(memory);
+					return call_function(func, memory);
 		
 		if const == None:
 			if func != None:
@@ -141,7 +152,7 @@ class Func:
 		if func_argc != given_argc:
 			return Result.err(f"Error: function argument count mismatch for: '{self.func}' got {given_argc} expected {func_argc}");
 		
-		calc_result = func(memory, *args);
+		calc_result = call_function(func, memory, *args);
 		if calc_result.is_err:
 			return calc_result;
 		calc_result = calc_result.inner;
@@ -226,7 +237,10 @@ class BinaryOp:
 		elif self.op == '*':
 			return Result.ok(lhs * rhs);
 		elif self.op == '/':
-			return Result.ok(lhs / rhs);
+			if rhs == 0:
+				return Result.err(f"Error: Division by zero. LHS: {lhs}");
+			else:
+				return Result.ok(lhs / rhs);
 		elif self.op == '^':
 			return Result.ok(lhs ** rhs);
 		else:
