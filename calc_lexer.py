@@ -7,7 +7,6 @@ TOKEN_COMMA = 5;
 TOKEN_EQ = 6;
 
 def lex(debug_mode: bool, text: str):
-	pos = 0;
 	tokens = [];
 
 	building_num = False;

@@ -1,5 +1,4 @@
 import calc_lexer;
-import main;
 from calc_result import *;
 from calc_interpreter import *;
 

@@ -92,14 +92,14 @@ class Const:
 	def visit(self, memory: Memory):
 		const = memory.constants.get(self.name);
 		func = None;
-		if const == None:
+		if const is None:
 			const = memory.arguments.get(self.name);
 		
-		if const == None:
+		if const is None:
 			# 0 arg func as a const
 			func = memory.functions.get(self.name);
 			custom = False;
-			if func == None:
+			if func is None:
 				func = memory.custom_functions.get(self.name);
 				custom = True;
 
@@ -108,7 +108,7 @@ class Const:
 				if func_argc == 0:
 					return call_function(func, memory);
 		
-		if const == None:
+		if const is None:
 			if func != None:
 				return Result.err(f"Error: constant: '{self.name}' not found\nWarning: function: '{self.name}' exists but it cannot be used as a constant");
 			
@@ -129,10 +129,10 @@ class Func:
 
 		# find the correct function
 		func = memory.functions.get(self.func);
-		if func == None:
+		if func is None:
 			func = memory.custom_functions.get(self.func);
 			custom = True;
-		if func == None:
+		if func is None:
 			return Result.err(f"Error: function: '{self.func}' not found");
 		
 		# setup args
@@ -146,7 +146,6 @@ class Func:
 
 		# validate argc
 		func_argc = (func.argc()) if custom else (len(inspect.signature(func).parameters) - 1);
-		func_argc = func_argc;
 		given_argc = len(args);
 
 		if func_argc != given_argc:
